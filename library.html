@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <title>Library Management System</title>
     <style>
-        /* General Styling */
+    
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(to right, #f5f7fa, #c3cfe2);
@@ -13,7 +13,7 @@
             padding: 0;
         }
 
-        /* Header */
+      
         header {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
@@ -34,7 +34,7 @@
             letter-spacing: 1px;
         }
 
-        /* Navigation */
+      
         nav {
             background: #5a4ea8;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
@@ -68,7 +68,7 @@
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
 
-        /* Main Container */
+       
         .container {
             display: flex;
             flex-wrap: wrap;
@@ -76,7 +76,7 @@
             padding: 30px;
         }
 
-        /* Cards */
+    
         .card {
             background: white;
             padding: 25px;
@@ -99,7 +99,7 @@
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
         }
 
-        /* Forms */
+      
         form label {
             display: block;
             margin-top: 15px;
@@ -146,7 +146,7 @@
             background: linear-gradient(135deg, #764ba2, #667eea);
         }
 
-        /* Table */
+      
         table {
             width: 100%;
             border-collapse: collapse;
@@ -172,7 +172,7 @@
             background: #f5f5f5;
         }
 
-        /* Footer */
+      
         footer {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
@@ -181,7 +181,7 @@
             box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.2);
         }
 
-        /* Responsive */
+      
         @media (max-width: 900px) {
             .card {
                 width: 90%;
@@ -192,13 +192,13 @@
 
 <body>
 
-    <!-- Header -->
+    
     <header>
         <h1>Library Management System</h1>
         <p>Manage Books with Ease & Style</p>
     </header>
 
-    <!-- Navigation -->
+   
     <nav>
         <ul>
             <li><a href="#">Home</a></li>
@@ -209,10 +209,10 @@
         </ul>
     </nav>
 
-    <!-- Main Section -->
+   
     <div class="container">
 
-        <!-- Add Book Form -->
+      
         <section class="card">
             <h2>Add Book</h2>
             <form id="add-book-form">
@@ -232,7 +232,7 @@
             </form>
         </section>
 
-        <!-- Borrow Book Form -->
+     
         <section class="card" id="borrow-book">
             <h2>Borrow Book</h2>
             <form id="borrow-book-form">
@@ -248,7 +248,19 @@
             </form>
         </section>
 
-        <!-- Book List -->
+    
+        <section class="card">
+            <h2>Return Book</h2>
+            <form id="return-book-form">
+                <label>Select Book to Return</label>
+                <select id="return-book-select" required>
+                    <option value="">Select a borrowed book</option>
+                </select>
+                <button type="submit">Return Book</button>
+            </form>
+        </section>
+
+     
         <section class="card">
             <h2>Available Books</h2>
             <table>
@@ -261,14 +273,14 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Books will be loaded dynamically -->
+                 
                 </tbody>
             </table>
         </section>
 
     </div>
 
-    <!-- Footer -->
+   
     <footer>
         <p>&copy; 2025 Library Management System | Designed with 3D Effects</p>
     </footer>
@@ -276,7 +288,7 @@
 </body>
 
 <script>
-    // Fetch and Display Books
+   
     async function loadBooks() {
         try {
             const response = await fetch('/api/books');
@@ -285,15 +297,15 @@
             const tableBody = document.querySelector('table tbody');
             const borrowSelect = document.getElementById('borrow-book-select');
 
-            // Clear existing rows
+            
             tableBody.innerHTML = '';
 
-            // Clear borrow dropdown (keep first option)
+            
             if (borrowSelect) {
                 borrowSelect.innerHTML = '<option value="">Select a book</option>';
             }
 
-            // Populate table
+            
             books.forEach(book => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
@@ -304,7 +316,7 @@
                 `;
                 tableBody.appendChild(row);
 
-                // Populate borrow dropdown (only available books)
+             
                 if (borrowSelect && book.available) {
                     const option = document.createElement('option');
                     option.value = book.id;
@@ -318,7 +330,30 @@
         }
     }
 
-    // Add Book Event
+    async function loadTransactions() {
+        try {
+            const response = await fetch('/api/transactions');
+            const transactions = await response.json();
+            const returnSelect = document.getElementById('return-book-select');
+
+            if (returnSelect) {
+                returnSelect.innerHTML = '<option value="">Select a borrowed book</option>';
+
+                transactions.forEach(trans => {
+                    if (!trans.isReturned) {
+                        const option = document.createElement('option');
+                        option.value = trans.id;
+                        option.textContent = `Transaction #${trans.id} (Book ID: ${trans.bookId})`;
+                        returnSelect.appendChild(option);
+                    }
+                });
+            }
+        } catch (error) {
+            console.error('Error loading transactions:', error);
+        }
+    }
+
+    
     const addBookForm = document.querySelector('#add-book-form');
     if (addBookForm) {
         addBookForm.addEventListener('submit', async (e) => {
@@ -351,7 +386,7 @@
         });
     }
 
-    // Borrow Book Event
+   
     const borrowForm = document.querySelector('#borrow-book-form');
     if (borrowForm) {
         borrowForm.addEventListener('submit', async (e) => {
@@ -389,8 +424,48 @@
         });
     }
 
-    // Initial Load
-    document.addEventListener('DOMContentLoaded', loadBooks);
+   
+    const returnForm = document.querySelector('#return-book-form');
+    if (returnForm) {
+        returnForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const returnSelect = document.getElementById('return-book-select');
+            const transactionId = parseInt(returnSelect.value);
+
+            if (!transactionId) {
+                alert('Please select a transaction to return');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/return', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ transaction_id: transactionId })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    alert('Book returned successfully!');
+                    returnForm.reset();
+                    loadBooks();
+                    loadTransactions(); 
+                } else {
+                    alert('Error returning book: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to return book. Check console for details.');
+            }
+        });
+    }
+
+   
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        loadBooks();
+        loadTransactions();
+    });
 </script>
 
 </html>
